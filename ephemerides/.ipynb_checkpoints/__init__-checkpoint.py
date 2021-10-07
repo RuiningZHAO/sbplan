@@ -1,5 +1,5 @@
 """
-Ephemeris
+Ephemerides
 -------
 
 :Author: Ruining ZHAO (rnzhao@nao.cas.cn)
@@ -9,7 +9,7 @@ from astropy import config as _config
 
 class Conf(_config.ConfigNamespace):
     """
-    Configuration parameters for `sbplan.ephemeris`.
+    Configuration parameters for `sbplan.ephemerides`.
     """
     lib_dir = _config.ConfigItem(
         os.path.join(os.path.dirname(__file__), "lib"), "Path to the directory of library.", cfgtype="string")
