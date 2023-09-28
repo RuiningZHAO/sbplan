@@ -1,9 +1,11 @@
 import re
+
 # NumPy
 import numpy as np
 # AstroPy
 from astropy.time import Time
 from astropy.table import Table, vstack
+
 
 def toSkyfieldFormat(catalog, database):
     """
@@ -19,44 +21,32 @@ def toSkyfieldFormat(catalog, database):
         perihelion_time = Time(catalog["tp"].data, scale="tdb", format="jd").tt.ymdhms
         catalog["perihelion_year"]  = np.array([time[0] for time in perihelion_time])
         catalog["perihelion_month"] = np.array([time[1] for time in perihelion_time])
-        catalog["perihelion_day"]   = np.array([((time[5] / 60 + time[4]) / 60 + time[3]) / 24 + time[2] for time in perihelion_time])
+        catalog["perihelion_day"]   = np.array(
+            [((time[5] / 60 + time[4]) / 60 + time[3]) / 24 + time[2] for time in perihelion_time]
+        )
 
         # Delete perihelion time
         del catalog["tp"]
 
         # Rename columns
-        catalog.rename_columns(["pdes", 
-                                "q", 
-                                "e", 
-                                "w", 
-                                "om", 
-                                "i", 
-                                "M1", 
-                                "K1", 
-                                "orbit_id"], 
-                               ["designation", 
-                                "perihelion_distance_au", 
-                                "eccentricity", 
-                                "argument_of_perihelion_degrees", 
-                                "longitude_of_ascending_node_degrees", 
-                                "inclination_degrees", 
-                                "magnitude_g", 
-                                "magnitude_k", 
-                                "reference"])
+        catalog.rename_columns(
+            names=[
+                "pdes", "q", "e", "w", "om", "i", "M1", "K1", "orbit_id"
+            ], 
+            new_names=[
+                "designation", "perihelion_distance_au", "eccentricity", 
+                "argument_of_perihelion_degrees", "longitude_of_ascending_node_degrees", 
+                "inclination_degrees", "magnitude_g", "magnitude_k", "reference"
+            ]
+        )
 
         # Reorder columns
-        catalog = catalog["designation",
-                          "perihelion_year", 
-                          "perihelion_month", 
-                          "perihelion_day", 
-                          "perihelion_distance_au", 
-                          "eccentricity", 
-                          "argument_of_perihelion_degrees", 
-                          "longitude_of_ascending_node_degrees", 
-                          "inclination_degrees", 
-                          "magnitude_g", 
-                          "magnitude_k", 
-                          "reference"]
+        catalog = catalog[
+            "designation", "perihelion_year",  "perihelion_month",  "perihelion_day",  
+            "perihelion_distance_au",  "eccentricity",  
+            "argument_of_perihelion_degrees",  "longitude_of_ascending_node_degrees",  
+            "inclination_degrees",  "magnitude_g",  "magnitude_k",  "reference"
+        ]
 
     elif database == "mpc":
 

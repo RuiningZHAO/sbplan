@@ -1,2 +1,7 @@
 # sbplan
-A python tool for scheduling small bodies observations.
+A tool for scheduling observation of small bodies.
+
+## Installation
+```
+pip install sbplan
+```

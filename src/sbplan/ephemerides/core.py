@@ -1,3 +1,6 @@
+"""
+"""
+
 # NumPy
 import numpy as np
 # AstroPy
@@ -15,10 +18,13 @@ from .utils import totalMagnitude
 
 __all__ = ["CometEphemerides", "CometEphemeridesClass"]
 
+
 class CometEphemeridesClass(object):
+
 
     LIB_DIR = conf.lib_dir
     PARAMS = conf.params
+
 
     def __init__(self, time_tag=None, location=None):
         """
@@ -28,6 +34,7 @@ class CometEphemeridesClass(object):
         ----------
         time_tag : astropy.time.core.Time
             Time tag.
+
         location : astropy.coordinates.earth.EarthLocation
             Site location.
         """
@@ -49,9 +56,14 @@ class CometEphemeridesClass(object):
             self.sun, self.earth, self.moon = DE421["sun"], DE421["earth"], DE421["moon"]
             # 3. Site location
             lon, lat, height = self.location.geodetic
-            self.observer = self.earth + wgs84.latlon(latitude_degrees=lat.to(u.degree).value, 
-                                                      longitude_degrees=lon.to(u.degree).value, 
-                                                      elevation_m=height.to(u.m).value)
+            self.observer = (
+                self.earth + wgs84.latlon(
+                    latitude_degrees=lat.to(u.degree).value, 
+                    longitude_degrees=lon.to(u.degree).value, 
+                    elevation_m=height.to(u.m).value
+                )
+            )
+
 
     def __call__(self, *args, **kwargs):
         """ 
@@ -59,6 +71,7 @@ class CometEphemeridesClass(object):
         """
 
         return self.__class__(*args, **kwargs)
+
 
     def get(self, catalog, params):
         """
@@ -118,7 +131,8 @@ class CometEphemeridesClass(object):
                ("r"     in self.params) or\
                ("alpha" in self.params) or\
                ("Tmag"  in self.params):
-                RA, DEC, Delta = c.radec(); RA, DEC, Delta = RA._degrees, DEC.degrees, Delta.au
+                RA, DEC, Delta = c.radec()
+                RA, DEC, Delta = RA._degrees, DEC.degrees, Delta.au
                 if "RA"    in self.params: table["RA"]    = RA    * u.Unit("deg")
                 if "DEC"   in self.params: table["DEC"]   = DEC   * u.Unit("deg")
                 if "delta" in self.params: table["delta"] = Delta * u.Unit("au" )
@@ -146,23 +160,31 @@ class CometEphemeridesClass(object):
             # 5. Heliocentric distance [au]
             if ("r"    in self.params) or\
                ("Tmag" in self.params):
-                r_h = np.sqrt(Delta**2 + earth_to_sun**2 - 2.0 * Delta * earth_to_sun * np.cos(SOT * np.pi / 180.0))
-                if "r" in self.params: table["r"] = r_h * u.Unit("au")
+                r_h = np.sqrt(
+                    Delta**2 + earth_to_sun**2 - 2.0 * Delta * earth_to_sun 
+                    * np.cos(SOT * np.pi / 180.0)
+                )
+                if "r" in self.params:
+                    table["r"] = r_h * u.Unit("au")
 
             # 6. Phase angle [deg]
             if "alpha" in self.params:
-                alpha = np.arctan2(earth_to_sun * np.sin(SOT / 180.0 * np.pi), 
-                                   Delta - earth_to_sun * np.cos(SOT / 180.0 * np.pi)) / np.pi * 180.0
+                alpha = 180.0 / np.pi * np.arctan2(
+                    earth_to_sun * np.sin(SOT / 180.0 * np.pi), 
+                    Delta - earth_to_sun * np.cos(SOT / 180.0 * np.pi)
+                )
                 table["alpha"] = alpha * u.Unit("deg")
 
             # 7. Magnitude [mag]
             if "Tmag" in self.params:
-                m1 = totalMagnitude(Delta=Delta, r_h=r_h, M1=row["magnitude_g"], K1=row["magnitude_k"])
+                m1 = totalMagnitude(
+                    Delta=Delta, r_h=r_h, M1=row["magnitude_g"], K1=row["magnitude_k"])
                 table["Tmag"] = m1 * u.Unit("mag")
 
             self.ephemerides[pdes] = Table(table)
 
         return self.time_tag, self.ephemerides
+
 
     def _check_time_tag_dtype(self, time_tag):
         """
@@ -174,15 +196,18 @@ class CometEphemeridesClass(object):
         
         return time_tag
 
+
     def _check_location_dtype(self, location):
         """
         """
 
         if location is not None:
             if not isinstance(location, EarthLocation):
-                raise ValueError("`astropy.coordinates.earth.EarthLocation` is required for `location`.")
+                raise ValueError(
+                    "`astropy.coordinates.earth.EarthLocation` is required for `location`.")
     
         return location
+
 
     def _check_catalog_dtype(self, catalog):
         """
@@ -191,6 +216,7 @@ class CometEphemeridesClass(object):
             raise ValueError("`astropy.table.table.Table` is required for `catalog`.")
 
         return catalog
+
 
     def _check_params_dtype(self, params):
         """
@@ -206,9 +232,11 @@ class CometEphemeridesClass(object):
         elif isinstance(params, list):
             for param in params:
                 if param not in self.PARAMS:
-                    raise ValueError(f"A `str` or a `list` from {self.PARAMS} is required.")
+                    raise ValueError(
+                        f"A `str` or a `list` from {self.PARAMS} is required.")
         
         return params
+
 
 # the default tool for users to interact with is an instance of the Class
 CometEphemerides = CometEphemeridesClass()

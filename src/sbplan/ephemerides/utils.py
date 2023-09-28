@@ -1,4 +1,5 @@
 import re
+
 # NumPy
 import numpy as np
 # AstroPy
@@ -7,6 +8,7 @@ from astropy.time import Time, TimeDelta
 from astropy.coordinates import EarthLocation
 # Astroquery
 from astroquery.mpc import MPC
+
 
 def totalMagnitude(Delta, r_h, M1, K1):
     """
@@ -17,16 +19,27 @@ def totalMagnitude(Delta, r_h, M1, K1):
 
     return m1
 
+
 def timeTag(epoch):
     """
     """
 
     if re.search("^\d+[ydhms]$", epoch["step"]):
-        dt = TimeDelta(int(epoch["step"][:-1]) * u.Unit(epoch["step"][-1]))
+        if epoch["step"][-1] == "y":
+            dt = TimeDelta(int(epoch["step"][:-1]) * u.Unit("yr"))
+        elif epoch["step"][-1] == "d":
+            dt = TimeDelta(int(epoch["step"][:-1]) * u.Unit("d"))
+        elif epoch["step"][-1] == "h":
+            dt = TimeDelta(int(epoch["step"][:-1]) * u.Unit("h"))
+        elif epoch["step"][-1] == "m":
+            dt = TimeDelta(int(epoch["step"][:-1]) * u.Unit("min"))
+        else:
+            dt = TimeDelta(int(epoch["step"][:-1]) * u.Unit("s"))
     
     time_tag = Time(epoch["start"]) + np.arange(int((Time(epoch["stop"]) - Time(epoch["start"])) / dt + 1)) * dt
 
     return time_tag
+
 
 def siteLocation(IAU_code):
     """

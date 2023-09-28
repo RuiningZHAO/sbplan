@@ -1,12 +1,18 @@
-import os
-import json
+"""
+"""
+
+import os, json
+
 # AstroPy
 from astropy.table import Table
 
-from . import conf
+# astroquery
 from astroquery.query import BaseQuery
 
+from . import conf
+
 __all__ = ["CometCatalog", "CometCatalogClass"]
+
 
 class CometCatalogClass(BaseQuery):
 
@@ -15,11 +21,13 @@ class CometCatalogClass(BaseQuery):
     CATALOG_DIR = conf.catalog_dir
     CATALOG_TYPE = conf.catalog_type
 
+
     def __init__(self):
         """
         Initialize a comet catalog class.
         """
         super(CometCatalogClass, self).__init__()
+
 
     def get(self, cat_type=CATALOG_TYPE, update=False, verbose=False):
         """
@@ -48,6 +56,7 @@ class CometCatalogClass(BaseQuery):
 
         return catalog
 
+
     def _get(self, cat_type):
         """
         """
@@ -64,6 +73,7 @@ class CometCatalogClass(BaseQuery):
 
         return catalog
 
+
     def update(self, cat_type=CATALOG_TYPE, verbose=False):
         """
         """
@@ -79,6 +89,7 @@ class CometCatalogClass(BaseQuery):
             self._update(cat_type=cat_type, verbose=verbose)
 
         return None
+
 
     def _update(self, cat_type, verbose):
         """
@@ -101,7 +112,8 @@ class CometCatalogClass(BaseQuery):
               rows=catalog_dict["data"]).write(catalog_path, overwrite=True)
 
         return None
-        
+
+
     def _check_cat_type_dtype(self, cat_type):
         """
         """
@@ -119,6 +131,7 @@ class CometCatalogClass(BaseQuery):
                     raise ValueError(f"A `str` or a `list` from {self.CATALOG_TYPE} is required.")
 
         return cat_type
+
 
     def _args_to_payload(self, cat_type):
         """
@@ -149,6 +162,7 @@ class CometCatalogClass(BaseQuery):
             payload["sb-cdata"] = json.dumps(payload["sb-cdata"])
 
         return payload
+
 
 # the default tool for users to interact with is an instance of the Class
 CometCatalog = CometCatalogClass()
